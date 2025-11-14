@@ -1,13 +1,26 @@
 import { PrismaClient } from './generated/prisma/client';
-import { withAccelerate } from '@prisma/extension-accelerate';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import dotenv from 'dotenv';
 
-const globalForPrisma = global as unknown as {
-  prisma: PrismaClient;
-};
+dotenv.config();
+const connectionString = `${process.env.DATABASE_URL}`;
 
-const prisma =
-  globalForPrisma.prisma || new PrismaClient().$extends(withAccelerate());
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+const adapter = new PrismaNeon({ connectionString });
+const prisma = new PrismaClient({ adapter }).$extends({
+  result: {
+    product: {
+      price: {
+        compute(product) {
+          return product.price.toString();
+        },
+      },
+      rating: {
+        compute(product) {
+          return product.rating.toString();
+        },
+      },
+    },
+  },
+});
 
 export default prisma;

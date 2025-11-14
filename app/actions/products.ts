@@ -11,7 +11,7 @@ export const getLatestProducts = async () => {
   });
   return data.map((product) => ({
     ...product,
-    price: product.price.toFixed(2),
-    rating: product.rating.toFixed(1),
+    price: product.price,
+    rating: product.rating,
   }));
 };
