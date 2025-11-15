@@ -15,3 +15,11 @@ export const getLatestProducts = async () => {
     rating: product.rating,
   }));
 };
+
+export const getProductBySlug = async (slug: string) => {
+  const product = await prisma.product.findFirst({
+    where: { slug },
+  });
+
+  return product;
+};
