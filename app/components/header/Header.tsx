@@ -61,7 +61,7 @@ const Header = () => {
                 className='flex flex-row items-center justify-center gap-2'
               >
                 <Image
-                  src={'/images/logo.svg'}
+                  src={'/images/logo.png'}
                   alt='Veloria Logo'
                   width={45}
                   height={45}
