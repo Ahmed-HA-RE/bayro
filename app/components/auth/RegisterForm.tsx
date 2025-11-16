@@ -55,7 +55,7 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
       <div className={cn('flex flex-col gap-6', className)} {...props}>
         <Card className='overflow-hidden p-0 shadow border-gray-300 dark:dark-border-color'>
           <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='p-6'>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='py-6'>
               <FieldGroup>
                 <div className='flex flex-col items-center w-full gap-2 '>
                   <h1 className='text-2xl font-bold'>Create your account</h1>
