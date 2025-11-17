@@ -22,12 +22,17 @@ import { MdAdminPanelSettings } from 'react-icons/md';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { signOutUser } from '@/app/actions/auth';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import ScreenSpinner from '../ScreenSpinner';
 
 const UserMenu = ({
   session,
 }: {
   session: typeof auth.$Infer.Session | null;
 }) => {
+  const [isPending, setIsPending] = useState(false);
+  const router = useRouter();
   const adminLinks =
     session && session.user.role === 'admin'
       ? [
@@ -55,11 +60,18 @@ const UserMenu = ({
   const userMenuLinks = [...baseLinks, ...adminLinks];
 
   const handleSignOut = async () => {
-    await signOutUser();
+    setIsPending(true);
+    const result = await signOutUser();
+
+    if (result.success) {
+      setIsPending(false);
+      router.push('/signin');
+    }
   };
 
   return (
     <>
+      {isPending && <ScreenSpinner mutate={true} />}
       {session?.user ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -102,9 +114,12 @@ const UserMenu = ({
               ))}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className='dark:hover:text-black'>
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className='dark:hover:text-black'
+            >
               <LogOutIcon size={16} aria-hidden='true' />
-              <span onClick={handleSignOut}>Logout</span>
+              <span>Logout</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -10,7 +10,6 @@ import {
 } from '@/schema/userSchema';
 import { APIError } from 'better-auth';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 export const registerUser = async (values: RegisterUserForm) => {
   try {
@@ -33,8 +32,7 @@ export const registerUser = async (values: RegisterUserForm) => {
 
     return {
       success: true,
-      message:
-        'Registration successful! Please check your email to verify your account.',
+      message: 'Registration successful.',
     };
   } catch (error: unknown) {
     if (error instanceof APIError) {
@@ -73,8 +71,32 @@ export const signInUser = async (values: SignInUserForm) => {
 };
 
 export const signOutUser = async () => {
-  await auth.api.signOut({
+  const result = await auth.api.signOut({
     headers: await headers(),
   });
-  redirect('/signin');
+
+  return result;
+};
+
+export const sendEmailVerificationOTP = async (email: string) => {
+  try {
+    const data = await auth.api.sendVerificationOTP({
+      body: {
+        email,
+        type: 'email-verification',
+      },
+    });
+
+    if (data.success) {
+      return {
+        success: data.success,
+        message:
+          'Verification email sent successfully. Please check your inbox.',
+      };
+    }
+  } catch (error) {
+    if (error instanceof APIError) {
+      return { success: false, message: error.message };
+    }
+  }
 };

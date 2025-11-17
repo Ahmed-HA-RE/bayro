@@ -19,6 +19,7 @@ import { useState } from 'react';
 import ScreenSpinner from '../ScreenSpinner';
 import { useRouter } from 'next/navigation';
 import { registerUser } from '@/app/actions/auth';
+import { sendEmailVerificationOTP } from '@/app/actions/auth';
 
 const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
   const [isPending, setIsPending] = useState(false);
@@ -38,14 +39,14 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
     setIsPending(true);
     const result = await registerUser(values);
 
-    if (result && !result.success && result.message) {
+    if (result && !result.success) {
       destructiveToast(result.message);
       setIsPending(false);
       return;
     } else {
       setIsPending(false);
-      successToast('Success! Check your inbox to activate full access.');
-      setTimeout(() => router.push('/verify-email'), 1500);
+      successToast(result?.message);
+      setTimeout(() => router.push('/'), 1500);
     }
   };
 

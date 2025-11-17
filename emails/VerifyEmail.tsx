@@ -1,5 +1,3 @@
-import { config } from 'dotenv';
-config();
 import {
   Body,
   Column,
@@ -19,18 +17,16 @@ import {
 } from '@react-email/components';
 
 interface VeloriaEmailVerificationProps {
-  validationCode?: string;
-  userName: string;
+  otp: string;
 }
 
 const baseUrl =
   process.env.NODE_ENV === 'production'
-    ? `${process.env.NEXT_PUBLIC_PROD_URL}/images`
-    : 'http://localhost:3001/static';
+    ? `${process.env.VERCEL_APP}/images`
+    : '/static';
 
 export const VeloriaEmailVerification = ({
-  validationCode,
-  userName,
+  otp,
 }: VeloriaEmailVerificationProps) => (
   <Tailwind
     config={{
@@ -63,10 +59,10 @@ export const VeloriaEmailVerification = ({
             />
           </Section>
 
-          <Heading className='text-[#1d1c1d] text-[26px] sm:text-3xl font-bold my-[30px] mx-0 p-0 leading-[42px]'>
+          <Heading className='text-[#1d1c1d] text-[26px] sm:text-3xl font-bold my-[30px] mb-0 mx-0 p-0 leading-[42px]'>
             Confirm your email address
           </Heading>
-          <Text className='text-xl mb-4 font-bold'>Greeting {userName}</Text>
+
           <Text className='text-lg mb-7.5'>
             Your confirmation code is below - enter it in your open browser
             window and we&apos;ll help you to get your email verified.
@@ -74,7 +70,7 @@ export const VeloriaEmailVerification = ({
 
           <Section className='bg-[rgb(245,244,245)] rounded mb-[30px] py-10 px-[10px]'>
             <Text className='text-3xl leading-[24px] text-center align-middle'>
-              {validationCode}
+              {otp}
             </Text>
           </Section>
 

@@ -10,7 +10,7 @@ export const convertToPlainObject = <T>(data: T): T => {
   return JSON.parse(JSON.stringify(data));
 };
 
-export const successToast = (message: string) => {
+export const successToast = (message: string | undefined) => {
   toast.success(message, {
     style: {
       '--normal-bg':
@@ -22,7 +22,7 @@ export const successToast = (message: string) => {
     } as React.CSSProperties,
   });
 };
-export const destructiveToast = (message: string) => {
+export const destructiveToast = (message: string | undefined) => {
   toast.error(message, {
     style: {
       '--normal-bg':
