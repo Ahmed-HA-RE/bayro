@@ -5,6 +5,7 @@ import { nextCookies } from 'better-auth/next-js';
 import { emailOTP } from 'better-auth/plugins/email-otp';
 import { Resend } from 'resend';
 import VeloriaEmailVerification from '@/emails/VerifyEmail';
+import VeloriaResetPassword from '@/emails/ResetPassword';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -30,6 +31,23 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 6,
     maxPasswordLength: 100,
+    sendResetPassword: async ({ user, url, token }, request) => {
+      await resend.emails.send({
+        from: 'Veloria <noreply@ahmedrehandev.net>',
+        replyTo: process.env.REPLY_TO_GMAIL,
+        to: user.email,
+        subject: 'Reset Password',
+        react: VeloriaResetPassword({
+          userName: user.name,
+          resetPasswordLink: url,
+        }),
+      });
+    },
+    onPasswordReset: async (data, request) => {
+      // console.log(request);
+      // request?.redirect('/verification?status=true');
+    },
+    resetPasswordTokenExpiresIn: 60 * 60 * 1000,
   },
 
   plugins: [

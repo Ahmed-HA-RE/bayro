@@ -120,3 +120,23 @@ export const verifyEmail = async (email: string, otp: string) => {
     }
   }
 };
+
+export const requestResetPassowrd = async (email: string) => {
+  try {
+    const data = await auth.api.requestPasswordReset({
+      body: {
+        email,
+        redirectTo: '/reset-password',
+      },
+    });
+
+    return {
+      success: data.status,
+      message: data.message,
+    };
+  } catch (error) {
+    if (error instanceof APIError) {
+      return { success: false, message: error.message };
+    }
+  }
+};

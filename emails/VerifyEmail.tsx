@@ -128,7 +128,7 @@ export const VeloriaEmailVerification = ({
           <Section>
             <Link
               className='text-[#b7b7b7] underline'
-              href={`${process.env.VERCEL_URL}`}
+              href={`${process.env.NEXT_PUBLIC_PROD_URL}`}
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -137,7 +137,7 @@ export const VeloriaEmailVerification = ({
             &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
             <Link
               className='text-[#b7b7b7] underline'
-              href={`${process.env.VERCEL_URL}/products`}
+              href={`${process.env.NEXT_PUBLIC_PROD_URL}/products`}
               target='_blank'
               rel='noopener noreferrer'
             >

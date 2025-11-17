@@ -7,6 +7,10 @@ export const proxy = async (req: NextRequest) => {
     headers: await headers(),
   });
 
+  const invalidToken = req.nextUrl.searchParams
+    .get('error')
+    ?.includes('INVALID_TOKEN');
+
   if (
     session &&
     session.user.role !== 'admin' &&
@@ -24,8 +28,24 @@ export const proxy = async (req: NextRequest) => {
     req.nextUrl.pathname === '/verify-email'
   ) {
     return NextResponse.redirect(new URL('/', req.url));
+  } else if (
+    session &&
+    session.user.role !== 'admin' &&
+    req.nextUrl.pathname === '/forgot-password'
+  ) {
+    return NextResponse.redirect(new URL('/', req.url));
+  } else if (invalidToken && req.nextUrl.pathname === '/reset-password') {
+    return NextResponse.redirect(
+      new URL('/verification?status=false', req.url)
+    );
   }
 };
 export const config = {
-  matcher: ['/register', '/signin', '/verify-email'],
+  matcher: [
+    '/register',
+    '/signin',
+    '/verify-email',
+    '/forgot-password',
+    '/reset-password',
+  ],
 };
