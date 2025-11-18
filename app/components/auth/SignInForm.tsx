@@ -21,13 +21,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type SignInUserForm, signInSchema } from '@/schema/userSchema';
 import { useState } from 'react';
 import ScreenSpinner from '../ScreenSpinner';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Checkbox } from '../ui/checkbox';
 import { signInUser, singInSocials } from '@/app/actions/auth';
 
 const SignInForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
+  const callbackUrl = useSearchParams().get('callbackUrl') || '/';
+
   const form = useForm<SignInUserForm>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -49,12 +51,12 @@ const SignInForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
     } else {
       setIsPending(false);
       successToast('Sign in successful! Redirecting...');
-      setTimeout(() => router.push('/'), 1500);
+      setTimeout(() => router.push(callbackUrl), 1500);
     }
   };
 
   const handleSocialSignIn = async (provider: 'google' | 'github') => {
-    await singInSocials(provider);
+    await singInSocials(provider, callbackUrl);
   };
 
   return (

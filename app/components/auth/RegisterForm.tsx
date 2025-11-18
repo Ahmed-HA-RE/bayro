@@ -17,12 +17,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type RegisterUserForm, registerSchema } from '@/schema/userSchema';
 import { useState } from 'react';
 import ScreenSpinner from '../ScreenSpinner';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { registerUser } from '@/app/actions/auth';
 
 const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
+  const callbackUrl = useSearchParams().get('callbackUrl') || '/';
+
   const form = useForm<RegisterUserForm>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -45,7 +47,7 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
     } else {
       setIsPending(false);
       successToast(result?.message);
-      setTimeout(() => router.push('/'), 1500);
+      setTimeout(() => router.push(callbackUrl), 1500);
     }
   };
 

@@ -142,10 +142,14 @@ export const requestResetPassowrd = async (email: string) => {
   }
 };
 
-export const singInSocials = async (provider: 'google' | 'github') => {
+export const singInSocials = async (
+  provider: 'google' | 'github',
+  callbackURL: string
+) => {
   const data = await auth.api.signInSocial({
     body: {
       provider,
+      callbackURL: callbackURL,
     },
   });
 
