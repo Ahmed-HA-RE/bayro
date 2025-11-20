@@ -91,12 +91,9 @@ const ActionDrawer = ({ product, cart }: ActionDrawerProps) => {
   return (
     <>
       <div className='flex flex-row justify-between items-center mb-4'>
-        <Link
-          className='hover:underline flex items-center gap-0.5'
-          href='/products'
-        >
+        <Link className='hover:underline flex items-center gap-0.5' href='/'>
           <ArrowLeft />
-          Back to Products
+          Back to Home
         </Link>
         <Button
           className='font-bold dark:bg-white dark:hover:bg-gray-200'
