@@ -3,7 +3,7 @@ import UserMenu from '@/app/components/header/user-menu';
 import { Input } from '@/app/components/ui/input';
 import Theme from './Theme';
 import { Avatar, AvatarFallback } from '../ui/avatar';
-import { Badge } from '../ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import Link from 'next/link';
 import Image from 'next/image';
 import CategorySheet from './CategorySheet';
@@ -74,18 +74,20 @@ const Header = async () => {
               {/* Theme */}
               <Theme />
               {/* Cart */}
-              <div className='relative w-fit cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-100/10 dark:hover:text-white transition duration-200 rounded-md'>
-                <Link href={'/cart'}>
-                  <Avatar className='size-9 rounded-sm'>
-                    <AvatarFallback className='rounded-sm bg-0'>
-                      <ShoppingCartIcon className='size-6' />
-                    </AvatarFallback>
-                  </Avatar>
-                  <Badge className='absolute -top-1 right-0.5 h-5 min-w-5 rounded-full px-1 tabular-nums text-xs'>
-                    8
-                  </Badge>
-                </Link>
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className='w-fit cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-100/10 dark:hover:text-white transition duration-200 rounded-md'>
+                    <Link href={'/cart'}>
+                      <Avatar className='size-9 rounded-sm'>
+                        <AvatarFallback className='rounded-sm bg-0'>
+                          <ShoppingCartIcon className='size-6' />
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side='bottom'>View Cart</TooltipContent>
+              </Tooltip>
             </div>
             {/* User menu */}
             <UserMenu session={session} />

@@ -1,17 +1,40 @@
 import CartTable from '@/app/components/cart/CartTable';
 import { getMyCart } from '@/app/actions/cart';
+import { Metadata } from 'next';
+import CartTotalCard from '@/app/components/cart/CartTotalCard';
+import { Alert, AlertTitle } from '@/app/components/ui/alert';
+import { TriangleAlertIcon } from 'lucide-react';
+import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Shopping Cart',
+  description: 'View and manage the items in your shopping cart.',
+};
 
 const CartPage = async () => {
   const cart = await getMyCart();
 
   return (
     <section className='mt-2'>
-      <h1 className='text-2xl md:text-3xl font-bold mb-4'>
+      <h1 className='text-2xl md:text-3xl font-bold mb-5'>
         Your Shopping Cart
       </h1>
-      <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
-        <CartTable cart={cart} />
-      </div>
+      {!cart || cart.items.length === 0 ? (
+        <Alert className='bg-destructive dark:bg-destructive/60 border-none text-white max-w-md mx-auto'>
+          <TriangleAlertIcon />
+          <AlertTitle>
+            Your cart is empty.{' '}
+            <Link className='underline underline-offset-2' href='/'>
+              Go Shopping
+            </Link>
+          </AlertTitle>
+        </Alert>
+      ) : (
+        <div className='grid grid-cols-1 md:grid-cols-5 gap-x-10 gap-y-4 items-start'>
+          <CartTable cart={cart} />
+          <CartTotalCard cart={cart} />
+        </div>
+      )}
     </section>
   );
 };
