@@ -1,3 +1,5 @@
+'use client';
+
 import { Cart } from '@/types';
 import {
   Card,
@@ -9,8 +11,14 @@ import {
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 import Link from 'next/link';
+import { auth } from '@/lib/auth';
 
-const CartTotalCard = ({ cart }: { cart: Cart }) => {
+type CartTotalCardProps = {
+  cart: Cart;
+  session: typeof auth.$Infer.Session | null;
+};
+
+const CartTotalCard = ({ cart, session }: CartTotalCardProps) => {
   const totalItems = cart.items.reduce((acc, c) => acc + c.qty, 0) || 0;
   return (
     <Card className='order-1 md:order-2 dark:dark-border-color w-full col-span-2 gap-6'>
@@ -52,7 +60,15 @@ const CartTotalCard = ({ cart }: { cart: Cart }) => {
           asChild
           className='w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded'
         >
-          <Link href='/shipping-address'>Proceed to Checkout</Link>
+          <Link
+            href={
+              !session
+                ? '/signin?callbackUrl=/shipping-address'
+                : '/shipping-address'
+            }
+          >
+            Proceed to Checkout
+          </Link>
         </Button>
       </CardFooter>
     </Card>

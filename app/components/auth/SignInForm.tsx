@@ -182,7 +182,15 @@ const SignInForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                 </Field>
                 <FieldDescription className='text-center'>
                   Don&apos;t have an account?{' '}
-                  <Link href='/register'>Register</Link>
+                  <Link
+                    href={
+                      callbackUrl
+                        ? `/register?callbackUrl=${callbackUrl}`
+                        : '/register'
+                    }
+                  >
+                    Register
+                  </Link>
                 </FieldDescription>
               </FieldGroup>
             </form>

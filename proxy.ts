@@ -38,6 +38,10 @@ export const proxy = async (req: NextRequest) => {
     return NextResponse.redirect(
       new URL('/verification?status=false', req.url)
     );
+  } else if (!session && req.nextUrl.pathname === '/shipping-address') {
+    return NextResponse.redirect(
+      new URL('/signin?callbackUrl=/shipping-address', req.url)
+    );
   }
 
   // Storing cartId in cookies
@@ -59,6 +63,7 @@ export const config = {
     '/verify-email',
     '/forgot-password',
     '/reset-password',
+    '/shipping-address',
     '/((?!api|_next/static|_next/image|.*\\.png$).*)',
   ],
 };

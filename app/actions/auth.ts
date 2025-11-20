@@ -12,6 +12,7 @@ import { APIError } from 'better-auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import prisma from '@/lib/prisma';
 
 export const registerUser = async (values: RegisterUserForm) => {
   try {
@@ -160,5 +161,20 @@ export const singInSocials = async (
 
   if (data.url) {
     redirect(data.url);
+  }
+};
+
+export const getUserById = async (userId: string | undefined) => {
+  try {
+    const user = await prisma.user.findFirst({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
+  } catch (error) {
+    throw new Error((error as Error).message);
   }
 };

@@ -159,7 +159,16 @@ const RegisterForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                   </Button>
                 </Field>
                 <FieldDescription className='text-center'>
-                  Already have an account? <Link href='/signin'>Sign In</Link>
+                  Already have an account?{' '}
+                  <Link
+                    href={
+                      callbackUrl
+                        ? `/signin?callbackUrl=${callbackUrl}`
+                        : '/signin'
+                    }
+                  >
+                    Sign In
+                  </Link>
                 </FieldDescription>
               </FieldGroup>
             </form>

@@ -5,6 +5,8 @@ import CartTotalCard from '@/app/components/cart/CartTotalCard';
 import { Alert, AlertTitle } from '@/app/components/ui/alert';
 import { TriangleAlertIcon } from 'lucide-react';
 import Link from 'next/link';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 
 export const metadata: Metadata = {
   title: 'Shopping Cart',
@@ -12,6 +14,10 @@ export const metadata: Metadata = {
 };
 
 const CartPage = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
   const cart = await getMyCart();
 
   return (
@@ -32,7 +38,7 @@ const CartPage = async () => {
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-5 gap-x-10 gap-y-4 items-start'>
           <CartTable cart={cart} />
-          <CartTotalCard cart={cart} />
+          <CartTotalCard cart={cart} session={session} />
         </div>
       )}
     </section>
