@@ -1,11 +1,17 @@
 import { getUserById } from '@/app/actions/auth';
 import { getMyCart } from '@/app/actions/cart';
-import CheckoutStepper from '@/app/components/CheckoutStepper';
-import ShippingAddressForm from '@/app/components/ShippingAddressForm';
+import CheckoutStepper from '@/app/components/checkout/CheckoutStepper';
+import ShippingAddressForm from '@/app/components/checkout/ShippingAddressForm';
 import { auth } from '@/lib/auth';
 import { Shipping } from '@/types';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Shipping Address',
+  description: 'Provide your shipping address.',
+};
 
 const ShippingAddressPage = async () => {
   const session = await auth.api.getSession({

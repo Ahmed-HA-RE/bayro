@@ -2,7 +2,7 @@
 
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import ScreenSpinner from './ScreenSpinner';
+import ScreenSpinner from '../ScreenSpinner';
 import { shippingSchema } from '@/schema/checkoutSchema';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -14,14 +14,14 @@ import {
   FieldGroup,
   FieldLabel,
   FieldSet,
-} from './ui/field';
-import { Input } from './ui/input';
-import { NativeSelect, NativeSelectOption } from './ui/native-select';
-import { destructiveToast, UAECITIES } from '@/lib/utils';
-import { PhoneInput } from './ui/phone-number-input';
-import { Button } from './ui/button';
+} from '../ui/field';
+import { Input } from '../ui/input';
+import { NativeSelect, NativeSelectOption } from '../ui/native-select';
+import { destructiveToast, successToast, UAECITIES } from '@/lib/utils';
+import { PhoneInput } from '../ui/phone-number-input';
+import { Button } from '../ui/button';
 import { ArrowRight } from 'lucide-react';
-import { updateUserAddress } from '../actions/auth';
+import { updateUserAddress } from '../../actions/auth';
 
 const ShippingAddressForm = ({ userAddress }: { userAddress: Shipping }) => {
   const [isPending, startTransition] = useTransition();
@@ -43,7 +43,8 @@ const ShippingAddressForm = ({ userAddress }: { userAddress: Shipping }) => {
       try {
         const res = await updateUserAddress(data);
 
-        if (res?.success) {
+        if (res.success) {
+          successToast(res.message);
           router.push('/checkout/payment-method');
         }
       } catch (error: any) {

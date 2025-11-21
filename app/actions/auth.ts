@@ -200,14 +200,14 @@ export const updateUserAddress = async (data: Shipping) => {
         where: { id: user.id },
         data: { address: validatedAddress.data },
       });
-      return { success: true, message: 'Address updated successfully' };
     }
+    return { success: true, message: 'Address updated successfully' };
   } catch (error) {
     throw new Error((error as Error).message);
   }
 };
 
-export const updateUserPayment = async (paymentType: string) => {
+export const updateUserPayment = async (paymentType: PaymentMethod) => {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -227,6 +227,7 @@ export const updateUserPayment = async (paymentType: string) => {
       where: { id: user.id },
       data: { paymentMethod: validatedPayment.data.paymentMethod },
     });
+    return { success: true, message: 'Payment method updated successfully' };
   } catch (error) {
     throw new Error((error as Error).message);
   }
