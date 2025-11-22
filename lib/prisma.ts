@@ -20,6 +20,57 @@ const prisma = new PrismaClient({ adapter }).$extends({
         },
       },
     },
+    cart: {
+      itemsPrice: {
+        compute(order) {
+          return order.itemsPrice.toFixed(2);
+        },
+      },
+      shippingPrice: {
+        compute(order) {
+          return order.shippingPrice.toFixed(2);
+        },
+      },
+      taxPrice: {
+        compute(order) {
+          return order.taxPrice.toFixed(2);
+        },
+      },
+      totalPrice: {
+        compute(order) {
+          return order.totalPrice.toFixed(2);
+        },
+      },
+    },
+    order: {
+      itemsPrice: {
+        compute(order) {
+          return order.itemsPrice.toFixed(2);
+        },
+      },
+      shippingPrice: {
+        compute(order) {
+          return order.shippingPrice.toFixed(2);
+        },
+      },
+      taxPrice: {
+        compute(order) {
+          return order.taxPrice.toFixed(2);
+        },
+      },
+      totalPrice: {
+        compute(order) {
+          return order.totalPrice.toFixed(2);
+        },
+      },
+    },
+    orderItems: {
+      price: {
+        compute(orderItems) {
+          return orderItems.price.toFixed(2);
+        },
+      },
+    },
   },
 });
 
