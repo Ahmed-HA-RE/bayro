@@ -17,13 +17,14 @@ const calcPrices = (items: CartItem[]) => {
   const shippingPrice =
     items.length > 0 ? roundToTwoDecimals(itemsPrice < 100 ? 10 : 0) : 0;
   const taxPrice = roundToTwoDecimals(itemsPrice * 0.05); // 5% tax
+  console.log(taxPrice);
   const totalPrice = roundToTwoDecimals(itemsPrice + shippingPrice + taxPrice);
 
   return {
-    itemsPrice: itemsPrice.toFixed(2),
-    shippingPrice: shippingPrice.toFixed(2),
-    taxPrice: taxPrice.toFixed(2),
-    totalPrice: totalPrice.toFixed(2),
+    itemsPrice: itemsPrice,
+    shippingPrice: shippingPrice,
+    taxPrice: taxPrice,
+    totalPrice: totalPrice,
   };
 };
 
@@ -134,10 +135,10 @@ export const getMyCart = async () => {
   return convertToPlainObject({
     ...cart,
     items: cart.items as CartItem[],
-    itemsPrice: cart.itemsPrice.toString(),
-    shippingPrice: cart.shippingPrice.toString(),
-    taxPrice: cart.taxPrice.toString(),
-    totalPrice: cart.totalPrice.toString(),
+    itemsPrice: cart.itemsPrice.toFixed(2),
+    shippingPrice: cart.shippingPrice.toFixed(2),
+    taxPrice: cart.taxPrice.toFixed(2),
+    totalPrice: cart.totalPrice.toFixed(2),
   });
 };
 

@@ -57,7 +57,8 @@ export const moneyAmountString = () => {
 };
 
 export const roundToTwoDecimals = (num: number) => {
-  return Math.round((num + Number.EPSILON) * 100) / 100;
+  const factor = Math.pow(10, 2);
+  return Math.round(num * factor) / factor;
 };
 
 // Cities list for select input

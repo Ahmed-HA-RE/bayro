@@ -4,13 +4,13 @@ import { shippingSchema } from './checkoutSchema';
 import { PAYMENT_METHODS } from '@/lib/constants';
 
 export const orderSchema = z.object({
-  userId: z.uuid({ error: 'Invalid user ID' }),
+  userId: z.string({ error: 'Invalid user ID' }),
   shippingAddress: shippingSchema,
   paymentMethod: z.enum(PAYMENT_METHODS.split(', '), {
     error: 'Invalid payment method',
   }),
   itemsPrice: moneyAmountString(),
-  shippingPrice: moneyAmountString(),
+  shippingPrice: z.string(),
   taxPrice: moneyAmountString(),
   totalPrice: moneyAmountString(),
 });

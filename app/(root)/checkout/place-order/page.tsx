@@ -25,6 +25,7 @@ import {
 } from '@/app/components/ui/table';
 import Image from 'next/image';
 import { Separator } from '@/app/components/ui/separator';
+import PlaceOrderBtn from '@/app/components/checkout/PlaceOrderBtn';
 
 export const metadata: Metadata = {
   title: 'Place Order',
@@ -206,6 +207,10 @@ const PlaceOrderPage = async () => {
                   </div>
                 </div>
               </CardContent>
+              {/* Place Order Button */}
+              <CardFooter className='px-4'>
+                <PlaceOrderBtn />
+              </CardFooter>
             </Card>
           </div>
         </div>

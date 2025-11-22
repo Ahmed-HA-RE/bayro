@@ -1,3 +1,5 @@
+'use server';
+
 import { auth } from '@/lib/auth';
 import { getUserById } from './auth';
 import { getMyCart } from './cart';
@@ -41,10 +43,15 @@ export const createOrder = async () => {
       });
 
       await tx.orderItems.createMany({
-        data: {
+        data: cart.items.map((item) => ({
           orderId: createdOrder.id,
-          ...cart.items,
-        },
+          productId: item.productId,
+          qty: item.qty,
+          name: item.name,
+          slug: item.slug,
+          image: item.image,
+          price: item.price,
+        })),
       });
       await prisma.cart.update({
         where: { id: cart.id },
@@ -62,7 +69,7 @@ export const createOrder = async () => {
     return {
       success: true,
       message: 'Order created successfully',
-      order: result,
+      redirect: `/order/${result.id}`,
     };
   } catch (error) {
     throw new Error((error as Error).message);
