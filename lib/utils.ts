@@ -116,3 +116,11 @@ export const formatDateTime = (dateString: Date) => {
     timeOnly: formattedTime,
   };
 };
+
+export const convertToNumber = (value: string | number): number => {
+  if (typeof value === 'string') {
+    return Number(value);
+  } else {
+    return value;
+  }
+};
