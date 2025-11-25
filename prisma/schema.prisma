@@ -41,6 +41,7 @@ model User {
   emailVerified Boolean   @default(false)
   image         String?
   role          String    @default("user")
+  bio           String?
   address       Json?     @db.Json
   paymentMethod String?
   createdAt     DateTime  @default(now())
