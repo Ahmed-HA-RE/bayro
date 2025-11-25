@@ -1,41 +1,43 @@
 'use client';
 import { useForm, Controller } from 'react-hook-form';
-import { useState, useTransition } from 'react';
-import { updateUserPubInfoSchema } from '../../../schema/userSchema';
+import { useTransition } from 'react';
+import { shippingSchema } from '../../../schema/checkoutSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardFooter } from '../ui/card';
-import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from '../ui/field';
 import { Input } from '../ui/input';
-import { destructiveToast, successToast } from '@/lib/utils';
+import { destructiveToast, successToast, UAECITIES } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
-import { Textarea } from '../ui/textarea';
-import AvatarUpload from '../AvatarUpload';
-import { FileMetadata } from '@/app/hooks/use-file-upload';
-import { UpdateUserPubInfo } from '@/types';
-import { updateUserPubInfo } from '@/app/actions/auth';
+import { Shipping } from '@/types';
+import { PhoneInput } from '../ui/phone-number-input';
+import { NativeSelect, NativeSelectOption } from '../ui/native-select';
+import { updateUserAddress } from '@/app/actions/auth';
 
-type UserPublicInfoProps = {
-  userContact: UpdateUserPubInfo;
+type UserContactFormProps = {
+  address: Shipping;
 };
 
-const UserPublicInfo = ({ userContact }: UserPublicInfoProps) => {
-  const [file, setFile] = useState<File | FileMetadata | undefined>(undefined);
-
-  const form = useForm<UpdateUserPubInfo>({
-    resolver: zodResolver(updateUserPubInfoSchema),
-    defaultValues: {
-      name: userContact.name || '',
-      bio: userContact.bio || '',
-    },
+const UserContactForm = ({ address }: UserContactFormProps) => {
+  const form = useForm<Shipping>({
+    resolver: zodResolver(shippingSchema),
+    defaultValues: address || '',
     mode: 'onSubmit',
   });
 
   const [isPending, startTransition] = useTransition();
 
-  const onSubmit = async (data: UpdateUserPubInfo) => {
+  const onSubmit = async (data: Shipping) => {
     startTransition(async () => {
-      const result = await updateUserPubInfo(data, file);
+      const result = await updateUserAddress(data);
+
       if (!result.success) {
         destructiveToast(result.message);
         return;
@@ -49,66 +51,113 @@ const UserPublicInfo = ({ userContact }: UserPublicInfoProps) => {
     <form onSubmit={form.handleSubmit(onSubmit)} className='flex-1/2 w-full'>
       <Card className='dark:dark-border-color gap-6'>
         <CardContent className='space-y-6'>
-          <FieldGroup className='gap-6'>
-            {/* Full Name */}
-            <Controller
-              control={form.control}
-              name='name'
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor='name'>Full Name</FieldLabel>
-                  <Input
-                    id='name'
-                    type='name'
-                    placeholder='Full Name'
-                    aria-invalid={fieldState.invalid}
-                    className='auth-input'
-                    {...field}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            {/* Bio */}
-            <Controller
-              control={form.control}
-              name='bio'
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <div className='flex items-center justify-between gap-1'>
-                    <FieldLabel htmlFor={field.name}>Bio</FieldLabel>
-                    <span className='text-muted-foreground text-xs'>
-                      Optional field
-                    </span>
-                  </div>
-                  <Textarea
-                    placeholder='Public bio for your profile'
-                    className='text-sm auth-input h-32'
-                    id={field.name}
-                    value={field.value || ''}
-                    onChange={field.onChange}
-                  />
-
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </FieldGroup>
-          {/* Avatar */}
-          <div className='space-y-3'>
-            <h2 className='font-medium'>Avatar</h2>
-            <div className='flex flex-row items-center gap-4 '>
-              {/* Upload btn */}
-              <AvatarUpload
-                setFile={setFile}
-                defaultAvatar={userContact.image as string}
+          <FieldSet>
+            <FieldGroup className='gap-6'>
+              {/* Full Name */}
+              <Controller
+                name='fullName'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Full Name</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        placeholder='Full Name'
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        {...field}
+                        className='border-black/50 dark:dark-border-color focus-visible:border-blue-500 focus-visible:ring-blue-500 placeholder:text-gray-500 dark:placeholder:text-gray-300'
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </FieldContent>
+                  </Field>
+                )}
               />
-            </div>
-          </div>
+              {/* City */}
+              <Controller
+                name='city'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>City</FieldLabel>
+                    <FieldContent>
+                      <NativeSelect
+                        aria-invalid={fieldState.invalid}
+                        className='border-black/50 dark:dark-border-color focus-visible:border-blue-500 focus-visible:ring-blue-500 placeholder:text-gray-500 dark:placeholder:text-gray-300'
+                        value={field.value}
+                        onChange={(e) => field.onChange(e)}
+                      >
+                        <NativeSelectOption value=''>
+                          Select City
+                        </NativeSelectOption>
+                        {UAECITIES.map((city) => (
+                          <NativeSelectOption
+                            key={city.value}
+                            value={city.value}
+                          >
+                            {city.label}
+                          </NativeSelectOption>
+                        ))}
+                      </NativeSelect>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </FieldContent>
+                  </Field>
+                )}
+              />
+              {/* Phone */}
+              <Controller
+                name='phoneNumber'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Phone Number</FieldLabel>
+                    <FieldContent>
+                      <PhoneInput
+                        defaultCountry='AE'
+                        countries={['AE']}
+                        countryCallingCodeEditable={false}
+                        limitMaxLength
+                        international
+                        placeholder='Phone Number'
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        {...field}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </FieldContent>
+                  </Field>
+                )}
+              />
+              {/* Street Address */}
+              <Controller
+                name='streetAddress'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Address</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        placeholder='Address'
+                        id={field.name}
+                        aria-invalid={fieldState.invalid}
+                        {...field}
+                        className='border-black/50 dark:dark-border-color focus-visible:border-blue-500 focus-visible:ring-blue-500 placeholder:text-gray-500 dark:placeholder:text-gray-300'
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </FieldContent>
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+          </FieldSet>
         </CardContent>
         <CardFooter className='self-end'>
           <Button disabled={isPending}>
@@ -121,4 +170,4 @@ const UserPublicInfo = ({ userContact }: UserPublicInfoProps) => {
   );
 };
 
-export default UserPublicInfo;
+export default UserContactForm;

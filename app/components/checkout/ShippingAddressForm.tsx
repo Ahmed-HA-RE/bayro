@@ -59,7 +59,7 @@ const ShippingAddressForm = ({ userAddress }: { userAddress: Shipping }) => {
     <form className='mt-4' onSubmit={form.handleSubmit(onSubmit)}>
       {isPending && <ScreenSpinner mutate={true} />}
       <FieldSet>
-        <FieldGroup className=''>
+        <FieldGroup>
           {/* Full Name */}
           <Controller
             name='fullName'

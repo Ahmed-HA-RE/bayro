@@ -260,7 +260,6 @@ export const updateUserPubInfo = async (
     });
 
     if (!validateData.success) {
-      console.log(validateData.error);
       return { success: false, message: 'Some fields are invalid' };
     }
 
@@ -300,6 +299,39 @@ export const updateUserPubInfo = async (
     revalidatePath('/', 'layout');
 
     return { success: true, message: 'Profile updated successfully' };
+  } catch (error) {
+    return { success: false, message: (error as Error).message };
+  }
+};
+
+export const updateuserContactInfo = async (data: Shipping) => {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    const user = await prisma.user.findFirst({
+      where: { id: session?.user.id },
+    });
+
+    if (!user) throw new Error('User not found');
+
+    const validateAddress = shippingSchema.safeParse(data);
+
+    if (!validateAddress.success) {
+      return { success: false, message: 'Some fields are invalid' };
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { address: validateAddress.data },
+    });
+
+    revalidatePath('/', 'layout');
+    return {
+      success: true,
+      message: 'Contact information updated successfully',
+    };
   } catch (error) {
     return { success: false, message: (error as Error).message };
   }
