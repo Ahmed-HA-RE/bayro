@@ -220,7 +220,7 @@ const PlaceOrderPage = async () => {
               <Alert className='border-none bg-sky-600 text-white dark:bg-sky-400 mt-6'>
                 <CircleAlertIcon />
                 <AlertTitle>Verify your email to place the order</AlertTitle>
-                <AlertDescription className='text-white/80 text-xs'>
+                <AlertDescription className='text-white opacity-85 text-xs'>
                   To complete your order, please verify your email. We've sent a
                   confirmation link to your inbox, click it to confirm your
                   email and proceed with your purchase. If the link has expired,

@@ -25,24 +25,38 @@ import {
   successToast,
 } from '@/lib/utils';
 import { Badge } from './ui/badge';
-import { createOrderPayment, confirmOrderPayment } from '../actions/order';
+import {
+  createOrderPayment,
+  confirmOrderPayment,
+  updateOrderToPaidCOD,
+  updateOrderToDelivered,
+} from '../actions/order';
 import {
   PayPalScriptProvider,
   PayPalButtons,
   usePayPalScriptReducer,
 } from '@paypal/react-paypal-js';
+import { Spinner } from './ui/spinner';
+import { Button } from './ui/button';
+import { useTransition } from 'react';
+
+type OrderDetailsTableProps = {
+  order: Order;
+  paypalClientId: string;
+  isAdmin: boolean;
+};
 
 const OrderDetailsTable = ({
   order,
   paypalClientId,
-}: {
-  order: Order;
-  paypalClientId: string;
-}) => {
+  isAdmin,
+}: OrderDetailsTableProps) => {
+  // PayPal Loading Screen
   const PayPalLoadingScreen = () => {
     const [{ isPending }] = usePayPalScriptReducer();
-    return isPending ? <div>Loading...</div> : null;
+    return isPending ? <Spinner className='text-black size-8 mx-auto' /> : null;
   };
+  const [isPending, startTransition] = useTransition();
 
   const handleCreateOrder = async () => {
     const res = await createOrderPayment(order.id);
@@ -59,12 +73,36 @@ const OrderDetailsTable = ({
     }
   };
 
+  const handleMarkAsPaidCOD = async () => {
+    startTransition(async () => {
+      const res = await updateOrderToPaidCOD(order.id);
+
+      if (!res.success) {
+        destructiveToast(res.message);
+      } else {
+        successToast(res.message);
+      }
+    });
+  };
+
+  const handleMarkAsDelivered = async () => {
+    startTransition(async () => {
+      const res = await updateOrderToDelivered(order.id);
+
+      if (!res.success) {
+        destructiveToast(res.message);
+      } else {
+        successToast(res.message);
+      }
+    });
+  };
+
   return (
     <section className='mt-4'>
       <h1 className='text-3xl font-bold mb-4'>Order {formatId(order.id)}</h1>
       <div className='grid grid-cols-1 md:grid-cols-5 gap-5'>
         {/* Left Col */}
-        <div className='md:col-span-3  space-y-5 order-2 md:order-1'>
+        <div className='md:col-span-3 space-y-5 order-2 md:order-1'>
           {/* Payment Method Card */}
           <Card className='dark:dark-border-color gap-3 py-4'>
             <CardHeader className='px-4 gap-0'>
@@ -239,6 +277,8 @@ const OrderDetailsTable = ({
               </div>
             </CardContent>
             {/* Payment Buttons */}
+
+            {/* PayPal */}
             {order.paymentMethod === 'PayPal' && !order.isPaid && (
               <CardFooter className='px-6 md:px-3  w-full block'>
                 {/* PayPal */}
@@ -255,6 +295,46 @@ const OrderDetailsTable = ({
                     onApprove={handleApproveOrder}
                   />
                 </PayPalScriptProvider>
+              </CardFooter>
+            )}
+
+            {/* Cash On Delivery */}
+
+            {/* Marked as Paid */}
+            {order.paymentMethod === 'CashOnDelivery' &&
+              !order.isPaid &&
+              isAdmin && (
+                <CardFooter className='px-6 md:px-3  w-full block'>
+                  <Button
+                    onClick={handleMarkAsPaidCOD}
+                    className='w-full text-base'
+                    size={'lg'}
+                    disabled={isPending}
+                  >
+                    {isPending ? (
+                      <Spinner className='text-white size-8' />
+                    ) : (
+                      'Mark as Paid'
+                    )}
+                  </Button>
+                </CardFooter>
+              )}
+
+            {/* Marked as Delieved */}
+            {order.isPaid && !order.isDelivered && isAdmin && (
+              <CardFooter className='px-6 md:px-3  w-full block'>
+                <Button
+                  onClick={handleMarkAsDelivered}
+                  className='w-full text-base'
+                  size={'lg'}
+                  disabled={isPending}
+                >
+                  {isPending ? (
+                    <Spinner className='text-white size-8' />
+                  ) : (
+                    'Mark as Delivered'
+                  )}
+                </Button>
               </CardFooter>
             )}
           </Card>

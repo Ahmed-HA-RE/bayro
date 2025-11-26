@@ -31,6 +31,7 @@ const OrderDetailsPage = async ({
     <OrderDetailsTable
       order={order}
       paypalClientId={process.env.PAYPAL_CLIENT_ID || ''}
+      isAdmin={session.user.role === 'admin'}
     />
   );
 };
