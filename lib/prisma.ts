@@ -23,7 +23,7 @@ const prisma = new PrismaClient({ adapter }).$extends({
     cart: {
       itemsPrice: {
         compute(order) {
-          return order.itemsPrice.toFixed(2);
+          return order.itemsPrice.toString();
         },
       },
       shippingPrice: {
