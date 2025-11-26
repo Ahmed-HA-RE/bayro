@@ -1,6 +1,4 @@
-import { auth } from '@/lib/auth';
 import { getOrdersOverview } from '@/app/actions/order';
-import { headers } from 'next/headers';
 import {
   Card,
   CardHeader,
@@ -28,12 +26,6 @@ export const metadata: Metadata = {
 };
 
 const AdminOverviewPage = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user.id) throw new Error('Unauthorized');
-
   const ordersSummary = await getOrdersOverview();
 
   return (

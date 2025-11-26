@@ -1,7 +1,10 @@
-import Link from 'next/link';
-import { getMyOrders } from '@/app/actions/order';
-import { Alert, AlertDescription, AlertTitle } from '@/app/components/ui/alert';
-import { TriangleAlertIcon, X } from 'lucide-react';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { getOrdersForAdmin } from '@/app/actions/order';
+import { Boxes, X } from 'lucide-react';
+import { Alert, AlertTitle } from '@/app/components/ui/alert';
+import PaginationControls from '@/app/components/Pagination';
+import { Metadata } from 'next';
 import {
   Table,
   TableBody,
@@ -12,40 +15,36 @@ import {
 } from '@/app/components/ui/table';
 import { convertToNumber, formatDateTime, formatId } from '@/lib/utils';
 import { Button } from '@/app/components/ui/button';
-import PaginationControls from '@/app/components/Pagination';
-import { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'My Orders',
-  description: 'View and manage your orders.',
+  title: 'Admin Orders',
+  description: 'View and manage all orders placed on the store — admin panel.',
 };
 
-const UserOrdersPage = async ({
+const AdminOrdersPage = async ({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
   const page = Number((await searchParams).page) || 1;
 
-  const result = await getMyOrders(page);
-  const { orders } = result;
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || session.user.role !== 'admin')
+    throw new Error('User is not authorized');
+
+  const { orders, totalPages } = await getOrdersForAdmin(page);
 
   return (
     <section className='mt-4'>
-      <h1 className='text-3xl md:text-4xl font-bold mb-4'>My Orders</h1>
+      <h1 className='text-3xl md:text-4xl font-bold mb-4'>Orders</h1>
       {!orders || orders.length === 0 ? (
         <Alert className='bg-destructive dark:bg-destructive/60 border-none text-white max-w-md mx-auto'>
-          <TriangleAlertIcon />
+          <Boxes />
           <AlertTitle>No Orders Found</AlertTitle>
-          <AlertDescription className='text-white/80 inline-block'>
-            You have not placed any orders yet.{' '}
-            <Link
-              className='underline underline-offset-2 text-white'
-              href={'/'}
-            >
-              Start Shopping
-            </Link>
-          </AlertDescription>
         </Alert>
       ) : (
         <>
@@ -57,7 +56,7 @@ const UserOrdersPage = async ({
                 <TableHead className='px-4'>TOTAL</TableHead>
                 <TableHead className='px-4'>PAID</TableHead>
                 <TableHead className='px-4'>DELIVERED</TableHead>
-                <TableHead className='px-4 text-right'>ACTIONS</TableHead>
+                <TableHead className='text-left'>ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -96,20 +95,23 @@ const UserOrdersPage = async ({
                       </span>
                     )}
                   </TableCell>
-                  <TableCell className='px-4 text-right'>
+                  <TableCell className='px-4 text-let'>
                     <Button size='sm' asChild>
                       <Link href={`/order/${order.id}`}>Details</Link>
+                    </Button>
+                    <Button
+                      className='bg-red-600 text-white hover:bg-red-700 ml-2'
+                      size='sm'
+                    >
+                      Delete
                     </Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          {result.totalPages > 1 && orders.length > 0 && (
-            <PaginationControls
-              currentPage={page}
-              totalPages={result.totalPages}
-            />
+          {totalPages > 1 && orders.length > 0 && (
+            <PaginationControls currentPage={page} totalPages={totalPages} />
           )}
         </>
       )}
@@ -117,4 +119,4 @@ const UserOrdersPage = async ({
   );
 };
 
-export default UserOrdersPage;
+export default AdminOrdersPage;
