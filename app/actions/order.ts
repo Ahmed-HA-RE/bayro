@@ -307,3 +307,68 @@ export const deleteOrderById = async (id: string) => {
     return { success: false, message: (error as Error).message };
   }
 };
+
+// Update order to be paid for (COD) Admin only
+export const UpdateOrderToPaidCOD = async (id: string) => {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) throw new Error('User is not authorized');
+
+    await prisma.$transaction(async (tx) => {
+      const orderId = await tx.order.update({
+        where: { id },
+        data: {
+          isPaid: true,
+          paidAt: new Date(),
+        },
+        include: { orderItems: true },
+      });
+
+      for (const item of orderId.orderItems) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            stock: { decrement: item.qty },
+          },
+        });
+      }
+    });
+    revalidatePath(`/order/${id}`, 'page');
+    return {
+      success: true,
+      message: 'Order has been marked as paid successfully',
+    };
+  } catch (error) {
+    return { success: false, message: (error as Error).message };
+  }
+};
+
+// Mark order as delivered for COD and PayPal Admin only
+export const updateOrderToDelivered = async (id: string) => {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) throw new Error('User is not authorized');
+
+    await prisma.order.update({
+      where: { id },
+      data: {
+        isDelivered: true,
+        deliveredAt: new Date(),
+      },
+    });
+
+    revalidatePath(`/order/${id}`, 'page');
+    return {
+      success: true,
+      message: 'Order has been marked as delivered',
+    };
+  } catch (error) {
+    return { success: false, message: (error as Error).message };
+  }
+};

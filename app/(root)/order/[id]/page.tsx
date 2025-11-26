@@ -24,7 +24,8 @@ const OrderDetailsPage = async ({
   const order = await getOrderById(id);
   if (!order) notFound();
 
-  if (session?.user.id !== order.userId) redirect('/');
+  if (session?.user.id !== order.userId && session?.user.role !== 'admin')
+    redirect('/');
 
   return (
     <OrderDetailsTable
