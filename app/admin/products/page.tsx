@@ -1,11 +1,8 @@
-import { getAllProducts } from '@/app/actions/products';
+import { deleteProductById, getAllProducts } from '@/app/actions/products';
 import PaginationControls from '@/app/components/Pagination';
+import DeleteDialog from '@/app/components/shared/DeleteDialog';
 import { Alert, AlertTitle } from '@/app/components/ui/alert';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/app/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/app/components/ui/avatar';
 import { Button } from '@/app/components/ui/button';
 import {
   Table,
@@ -16,9 +13,11 @@ import {
   TableRow,
 } from '@/app/components/ui/table';
 import { convertToNumber } from '@/lib/utils';
-import { PencilIcon, Trash2Icon, TriangleAlertIcon } from 'lucide-react';
+import { PencilIcon, TriangleAlertIcon } from 'lucide-react';
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Admin Products',
@@ -76,14 +75,21 @@ const AdminProductsPage = async ({
                     <TableCell>
                       <div className='flex items-center gap-3'>
                         <Avatar className='rounded-sm'>
-                          <AvatarImage
-                            src={product.images[0]}
-                            alt={product.name}
-                            className='object-cover'
-                          />
-                          <AvatarFallback className='text-xs'>
-                            {product.name.slice(0, 2).toUpperCase()}
-                          </AvatarFallback>
+                          <Suspense
+                            fallback={
+                              <AvatarFallback>
+                                {product.name.slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            }
+                          >
+                            <Image
+                              src={product.images[0]}
+                              alt='logo'
+                              width={50}
+                              height={50}
+                              className='object-center object-cover'
+                            />
+                          </Suspense>
                         </Avatar>
                         <h4 className='font-medium max-w-[150px] truncate md:max-w-none'>
                           {product.name}
@@ -99,7 +105,7 @@ const AdminProductsPage = async ({
                     <TableCell>{product.category}</TableCell>
                     <TableCell>{product.stock}</TableCell>
                     <TableCell>{convertToNumber(product.rating)}</TableCell>
-                    <TableCell className='flex products-center'>
+                    <TableCell>
                       <Button
                         variant='ghost'
                         size='icon'
@@ -111,14 +117,11 @@ const AdminProductsPage = async ({
                           <PencilIcon />
                         </Link>
                       </Button>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='rounded-full'
-                        aria-label={`product-${product.id}-remove`}
-                      >
-                        <Trash2Icon />
-                      </Button>
+                      <DeleteDialog
+                        id={product.id}
+                        type={'product'}
+                        action={deleteProductById}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

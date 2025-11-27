@@ -1,6 +1,6 @@
 'use client';
 
-import { TriangleAlertIcon } from 'lucide-react';
+import { Trash2Icon, TriangleAlertIcon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -19,9 +19,10 @@ import { Spinner } from '../ui/spinner';
 type DeleteDialogProps = {
   id: string;
   action: (id: string) => Promise<{ success: boolean; message: string }>;
+  type: string;
 };
 
-const DeleteDialog = ({ id, action }: DeleteDialogProps) => {
+const DeleteDialog = ({ id, action, type }: DeleteDialogProps) => {
   const [openModal, setOpenModal] = useState(false);
 
   const [isPending, startTransition] = useTransition();
@@ -43,11 +44,11 @@ const DeleteDialog = ({ id, action }: DeleteDialogProps) => {
     <>
       <Button
         onClick={() => setOpenModal(!openModal)}
-        variant={'destructive'}
+        variant={type === 'order' ? 'destructive' : 'ghost'}
         className='ml-2'
-        size='sm'
+        size={type === 'order' ? 'sm' : 'icon'}
       >
-        Delete
+        {type === 'order' ? 'Delete' : <Trash2Icon />}
       </Button>
       <AlertDialog open={openModal} onOpenChange={setOpenModal}>
         <AlertDialogContent>
@@ -59,8 +60,8 @@ const DeleteDialog = ({ id, action }: DeleteDialogProps) => {
               Are you absolutely sure you want to delete it?
             </AlertDialogTitle>
             <AlertDialogDescription className='text-center dark:text-white/80'>
-              This action cannot be undone. This will permanently delete the
-              user's order from his account.
+              This action cannot be undone. This will permanently delete it from
+              the system.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -70,7 +71,13 @@ const DeleteDialog = ({ id, action }: DeleteDialogProps) => {
               className='bg-destructive hover:bg-destructive/90 focus-visible:ring-destructive text-white'
               onClick={handleDeleteOrder}
             >
-              {isPending ? <Spinner className='size-8 text-white' /> : 'Delete'}
+              {isPending ? (
+                <>
+                  <Spinner className='size-5 text-white' /> Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -100,7 +100,11 @@ const AdminOrdersPage = async ({
                     <Button size='sm' asChild>
                       <Link href={`/order/${order.id}`}>Details</Link>
                     </Button>
-                    <DeleteDialog id={order.id} action={deleteOrderById} />
+                    <DeleteDialog
+                      id={order.id}
+                      action={deleteOrderById}
+                      type={'order'}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

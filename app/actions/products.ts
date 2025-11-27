@@ -1,6 +1,7 @@
 'use server';
 import { LIMIT_LIST_PRODUCTS } from '@/lib/constants';
 import prisma from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
 
 export const getLatestProducts = async () => {
   const data = await prisma.product.findMany({
@@ -51,6 +52,26 @@ export const getAllProducts = async ({
       products,
       totalPages: Math.ceil(totalProducts / limit),
     };
+  } catch (error) {
+    return { success: false, message: (error as Error).message };
+  }
+};
+
+export const deleteProductById = async (id: string) => {
+  try {
+    const product = await prisma.product.findFirst({
+      where: { id },
+    });
+
+    if (!product) throw new Error('Product not found');
+
+    await prisma.product.delete({
+      where: { id },
+    });
+
+    revalidatePath('/admin/products', 'page');
+
+    return { success: true, message: 'Product deleted successfully' };
   } catch (error) {
     return { success: false, message: (error as Error).message };
   }
