@@ -23,3 +23,35 @@ export const getProductBySlug = async (slug: string) => {
 
   return product;
 };
+
+type getAllProductsPrams = {
+  page: number;
+  query: string;
+  category: string;
+  limit?: number;
+};
+
+export const getAllProducts = async ({
+  page,
+  query,
+  category,
+  limit = 2,
+}: getAllProductsPrams) => {
+  try {
+    const products = await prisma.product.findMany({
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    if (!products) throw new Error('Products not found');
+
+    const totalProducts = await prisma.product.count();
+
+    return {
+      products,
+      totalPages: Math.ceil(totalProducts / limit),
+    };
+  } catch (error) {
+    return { success: false, message: (error as Error).message };
+  }
+};
