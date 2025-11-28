@@ -105,9 +105,9 @@ const getFilePreview = (file: {
 };
 
 const ProductDropzone = ({
-  setFiles,
+  setProductsFiles,
 }: {
-  setFiles: Dispatch<SetStateAction<File[]>>;
+  setProductsFiles: Dispatch<SetStateAction<File[]>>;
 }) => {
   const maxSizeMB = 8;
   const maxSize = maxSizeMB * 1024 * 1024; // 8MB default
@@ -129,13 +129,14 @@ const ProductDropzone = ({
     maxFiles,
     maxSize,
     multiple: true,
+    accept: 'image/*',
   });
 
   useEffect(() => {
     if (files.length > 0) {
-      setFiles(files.map((f) => f.file as File));
+      setProductsFiles(files.map((f) => f.file as File));
     } else {
-      setFiles([]);
+      setProductsFiles([]);
     }
   }, [files]);
 

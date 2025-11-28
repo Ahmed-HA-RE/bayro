@@ -6,7 +6,7 @@ import {
   createProductSchema,
   updateProductSchema,
 } from '@/schema/productSchema';
-import { successToast, destructiveToast } from '@/lib/utils';
+import { successToast, destructiveToast, cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import ScreenSpinner from '../ScreenSpinner';
 import { Field, FieldError, FieldLabel, FieldGroup } from '../ui/field';
@@ -19,6 +19,8 @@ import { useRouter } from 'next/navigation';
 import ProductDropzone from './ProductDropzone';
 import { Label } from '../ui/label';
 import { useState } from 'react';
+import { Checkbox } from '../ui/checkbox';
+import BannerFileUpload from './BannerFileUpload';
 
 type ProductFormProps = {
   type: 'create' | 'update';
@@ -27,7 +29,8 @@ type ProductFormProps = {
 
 const ProductForm = ({ type, product }: ProductFormProps) => {
   const router = useRouter();
-  const [files, setFiles] = useState<File[]>([]);
+  const [productsFiles, setProductsFiles] = useState<File[]>([]);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
 
   const form = useForm<CreateProduct>({
     resolver: zodResolver(
@@ -43,15 +46,17 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
             price: '0',
             category: '',
             stock: 0,
-            // isFeatured: false,
-            // banner: null,
+            isFeatured: false,
             brand: '',
           },
   });
 
   const onSubmit = async (data: CreateProduct) => {
     if (type === 'create') {
-      const res = await createProduct(data, files);
+      const res = await createProduct(data, {
+        productsImages: productsFiles,
+        bannerImage: bannerFile,
+      });
       if (!res.success) {
         destructiveToast(res.message);
         return;
@@ -66,7 +71,10 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
         return;
       }
 
-      const res = await updateProduct({ ...data, id: product.id }, files);
+      const res = await updateProduct(
+        { ...data, id: product.id },
+        { productsImages: productsFiles, bannerImage: bannerFile }
+      );
 
       if (!res.success) {
         destructiveToast(res.message);
@@ -81,7 +89,7 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
       {form.formState.isSubmitting && <ScreenSpinner mutate={true} />}
-      <FieldGroup>
+      <FieldGroup className='gap-4'>
         {/* Name + slug */}
         <FieldGroup className='md:flex-row'>
           {/* Name */}
@@ -226,17 +234,44 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
         </FieldGroup>
 
         {/* Image */}
-        <div>
-          <Label className='mb-4'>Images</Label>
-          <ProductDropzone setFiles={setFiles} />
-          {form.formState.isSubmitted && files.length === 0 && (
-            <p className='mt-2.5 text-destructive text-sm'>
+        <Field>
+          <FieldLabel
+            className={cn(
+              'text-black',
+              productsFiles.length === 0 && 'text-destructive'
+            )}
+          >
+            Images
+          </FieldLabel>
+          <ProductDropzone setProductsFiles={setProductsFiles} />
+          {form.formState.isSubmitted && productsFiles.length === 0 && (
+            <FieldError className='mt-2.5 text-destructive text-sm'>
               At least one image is required
-            </p>
+            </FieldError>
           )}
-        </div>
+        </Field>
 
-        {/* isFeatured */}
+        {/* Add banner only when is featured is checked */}
+        {form.watch('isFeatured') && (
+          <Field>
+            <FieldLabel
+              className={cn(
+                'text-black',
+                productsFiles.length === 0 && 'text-destructive'
+              )}
+            >
+              Banner
+            </FieldLabel>
+            <BannerFileUpload setBannerFile={setBannerFile} />
+            {form.formState.isSubmitted &&
+              !bannerFile &&
+              form.watch('isFeatured') && (
+                <FieldError className='mt-2.5 text-destructive text-sm'>
+                  At least one image is required
+                </FieldError>
+              )}
+          </Field>
+        )}
 
         {/* Description */}
         <Controller
@@ -256,10 +291,30 @@ const ProductForm = ({ type, product }: ProductFormProps) => {
             </Field>
           )}
         />
+        {/* isFeatured */}
+        <Controller
+          name='isFeatured'
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field orientation={'horizontal'} data-invalid={fieldState.invalid}>
+              <Checkbox
+                id={field.name}
+                aria-invalid={fieldState.invalid}
+                checked={field.value}
+                onCheckedChange={(checked) => {
+                  field.onChange(checked);
+                }}
+              />
+              <FieldLabel htmlFor={field.name}>Is Featured</FieldLabel>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+
         <Button
           size={'lg'}
           type='submit'
-          className='h-12 text-base'
+          className='h-12 text-base mt-2'
           disabled={form.formState.isSubmitting}
         >
           {`${type === 'create' ? 'Create' : 'Update'} Product`}

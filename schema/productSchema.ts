@@ -29,11 +29,14 @@ export const baseProductSchema = z.object({
   stock: z.coerce
     .number<number>({ error: 'Invalid stock' })
     .min(0, 'Stock cannot be negative'),
-  // isFeatured: z.boolean(),
-  // banner: z.string().nullable(),
+  isFeatured: z.boolean(),
+  banner: z.string().nullable(),
 });
 
-export const createProductSchema = baseProductSchema.omit({ images: true });
+export const createProductSchema = baseProductSchema.omit({
+  images: true,
+  banner: true,
+});
 
 export const updateProductSchema = createProductSchema.extend({
   id: z.string({ error: 'Invalid product ID' }),

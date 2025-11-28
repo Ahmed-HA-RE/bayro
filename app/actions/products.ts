@@ -80,6 +80,12 @@ export const deleteProductById = async (id: string) => {
       await cloudinary.uploader.destroy(`bayro/${publicId}`);
     }
 
+    // Delete banner image if exists
+    if (product.banner) {
+      const bannerPublicId = product.banner.split('/').at(-1)?.split('.')[0];
+      await cloudinary.uploader.destroy(`bayro/${bannerPublicId}`);
+    }
+
     await prisma.product.delete({
       where: { id },
     });
@@ -92,11 +98,16 @@ export const deleteProductById = async (id: string) => {
   }
 };
 
-export const createProduct = async (data: CreateProduct, images: File[]) => {
+export const createProduct = async (
+  data: CreateProduct,
+  images: { productsImages: File[]; bannerImage: File | null }
+) => {
   try {
     let imagesURL: string[] = [];
+    let bannerURL: string | null = null;
 
-    if (images.length === 0) throw new Error('At least one image is required');
+    if (images.productsImages.length === 0)
+      throw new Error('At least one image is required');
 
     const validateProduct = createProductSchema.safeParse(data);
 
@@ -104,7 +115,8 @@ export const createProduct = async (data: CreateProduct, images: File[]) => {
       throw new Error('Invalid product data');
     }
 
-    for (const file of images) {
+    // for products images
+    for (const file of images.productsImages) {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = new Uint8Array(arrayBuffer);
       const image: string = await new Promise((resolve, reject) => {
@@ -124,10 +136,32 @@ export const createProduct = async (data: CreateProduct, images: File[]) => {
       imagesURL.push(image);
     }
 
+    // for banner image
+    if (images.bannerImage) {
+      const arrayBuffer = await images.bannerImage.arrayBuffer();
+      const buffer = new Uint8Array(arrayBuffer);
+      const image: string = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            { folder: 'bayro', overwrite: true },
+            function (error, result) {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(result?.secure_url as string);
+            }
+          )
+          .end(buffer);
+      });
+      bannerURL = image;
+    }
+
     await prisma.product.create({
       data: {
         ...validateProduct.data,
         images: imagesURL,
+        banner: bannerURL,
       },
     });
 
@@ -139,7 +173,10 @@ export const createProduct = async (data: CreateProduct, images: File[]) => {
   }
 };
 
-export const updateProduct = async (data: UpdateProduct, images: File[]) => {
+export const updateProduct = async (
+  data: UpdateProduct,
+  images: { productsImages: File[]; bannerImage: File | null }
+) => {
   try {
     const validateProduct = updateProductSchema.safeParse(data);
 
