@@ -298,3 +298,13 @@ export const getCategories = async () => {
 
   return categories;
 };
+
+export const getFeaturedProducts = async () => {
+  const products = await prisma.product.findMany({
+    where: { isFeatured: true },
+    orderBy: { createdAt: 'desc' },
+    take: 3,
+  });
+
+  return convertToPlainObject(products);
+};
