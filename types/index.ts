@@ -1,9 +1,8 @@
 import z from 'zod';
 import {
   baseProductSchema,
-  baseReviewSchema,
+  createAndUpdateReviewSchema,
   createProductSchema,
-  createReviewSchema,
   updateProductSchema,
 } from '@/schema/productSchema';
 import { cartItemSchema, cartSchema } from '@/schema/cartSchema';
@@ -14,6 +13,7 @@ import {
 } from '@/schema/checkoutSchema';
 import { orderItemSchema, orderSchema } from '@/schema/orderSchema';
 import { updateUserPubInfoSchema } from '@/schema/userSchema';
+import { createAndUpdateReview } from '@/lib/actions/review';
 
 export type Product = z.infer<typeof baseProductSchema> & {
   id: string;
@@ -44,10 +44,12 @@ export type UpdateUserPubInfo = z.infer<typeof updateUserPubInfoSchema> & {
 export type CreateProduct = z.infer<typeof createProductSchema>;
 export type UpdateProduct = z.infer<typeof updateProductSchema>;
 
-export type ProductReview = z.infer<typeof baseReviewSchema> & {
+export type ProductReview = z.infer<typeof createAndUpdateReviewSchema> & {
   id: string;
   createdAt: Date;
   user: { name: string; emailVerified: boolean | null };
+  userId: string;
+  productId: string;
 };
 
-export type CreateReview = z.infer<typeof createReviewSchema>;
+export type CreateReview = z.infer<typeof createAndUpdateReviewSchema>;

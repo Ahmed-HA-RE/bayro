@@ -88,7 +88,7 @@ const UserMenu = ({
                   }
                 >
                   <Image
-                    src={session.user?.image as string}
+                    src={session.user.image!}
                     alt='logo'
                     width={50}
                     height={50}

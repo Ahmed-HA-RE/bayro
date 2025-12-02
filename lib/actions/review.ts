@@ -1,10 +1,11 @@
 'use server';
 
 import { auth } from '../auth';
-import { createReviewSchema } from '@/schema/productSchema';
+import { createAndUpdateReviewSchema } from '@/schema/productSchema';
 import { CreateReview } from '@/types';
 import { headers } from 'next/headers';
 import prisma from '../prisma';
+import { revalidatePath } from 'next/cache';
 
 export const getAllReviewsByProductId = async (productId: string) => {
   const reviews = await prisma.review.findMany({
@@ -31,16 +32,21 @@ export const getUserReviewsByProductId = async (productId: string) => {
     headers: await headers(),
   });
 
-  if (!session) throw new Error('You must be logged in to submit a review.');
-
   const review = await prisma.review.findFirst({
     where: {
-      userId: session.user.id,
+      userId: session?.user.id,
       productId: productId,
     },
+    include: {
+      user: {
+        select: {
+          name: true,
+          image: true,
+          emailVerified: true,
+        },
+      },
+    },
   });
-
-  if (!review) return;
 
   return review;
 };
@@ -56,7 +62,7 @@ export const createAndUpdateReview = async (
 
     if (!session) throw new Error('You must be logged in to submit a review.');
 
-    const validatedData = createReviewSchema.safeParse(data);
+    const validatedData = createAndUpdateReviewSchema.safeParse(data);
 
     if (!validatedData.success) throw new Error('Invalid review data.');
 
@@ -106,6 +112,8 @@ export const createAndUpdateReview = async (
         },
       });
     });
+
+    revalidatePath(`/product/${product.slug}`);
 
     return { success: true, message: 'Review submitted successfully.' };
   } catch (error) {

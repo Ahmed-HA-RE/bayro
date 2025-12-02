@@ -4,8 +4,8 @@ import ActionDrawer from '@/app/components/products/ActionDrawer';
 import { convertToPlainObject } from '@/lib/utils';
 import ProductImages from '@/app/components/products/ProductImages';
 import { getMyCart } from '@/lib/actions/cart';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { Rating } from '@/app/components/ui/star-rating';
+
 import ProductReviews from '@/app/components/products/ProductReviews';
 
 const ProductDetailsPage = async ({
@@ -17,9 +17,6 @@ const ProductDetailsPage = async ({
   const product = await getProductBySlug(slug);
   if (!product) return notFound();
   const cart = await getMyCart();
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
 
   return (
     <section>
@@ -34,9 +31,20 @@ const ProductDetailsPage = async ({
           <div className='flex flex-col justify-center items-start gap-5'>
             <p>{product.brand}</p>
             <h2 className='text-2xl font-bold'>{product.name}</h2>
-            <p>
-              {product.rating} of {product.numReviews} reviews
-            </p>
+            <div className='flex flex-row items-center gap-2'>
+              {product.numReviews > 0 && (
+                <Rating
+                  size={25}
+                  variant={'yellow'}
+                  value={Number(product.rating)}
+                  precision={0.5}
+                  readOnly
+                />
+              )}
+              <p className='text-muted-foreground'>
+                {product.numReviews} customer reviews
+              </p>
+            </div>
             <div className='flex flex-row items-center justify-center gap-0.5 text-green-700 dark:text-green-800 py-2 px-4 rounded-full bg-green-200/80 dark:bg-green-300/80'>
               <p className='dirham-symbol'>&#xea;</p>
               <p>{product.price}</p>

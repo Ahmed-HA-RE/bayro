@@ -21,16 +21,16 @@ export const generateMetadata = async ({
 }): Promise<Metadata> => {
   const { q, price, category } = await searchParams;
 
-  if (q || price || category) {
-    return {
-      title: `
-      ${q && 'Search ' + q} ${category ? ': Category ' + category : ''} ${price ? ': Price ' + price : ''}
-      `,
-    };
+  const parts = [];
+
+  if (q) parts.push(`Search: ${q}`);
+  if (category) parts.push(`Category: ${category}`);
+  if (price) parts.push(`Price: ${price}`);
+
+  if (parts.length > 0) {
+    return { title: parts.join(' | ') };
   } else {
-    return {
-      title: 'Search Products',
-    };
+    return { title: 'Search Products' };
   }
 };
 

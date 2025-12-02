@@ -130,10 +130,7 @@ const UserPublicInfoForm = ({ user, providerId }: UserPublicInfoFormProps) => {
             <h2 className='font-medium'>Avatar</h2>
             <div className='flex flex-row items-center gap-4 '>
               {/* Upload btn */}
-              <AvatarUpload
-                setFile={setFile}
-                defaultAvatar={user.image || undefined}
-              />
+              <AvatarUpload setFile={setFile} defaultAvatar={user.image!} />
             </div>
           </div>
         </CardContent>

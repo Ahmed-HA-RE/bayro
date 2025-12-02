@@ -296,7 +296,7 @@ export const updateUserPubInfo = async (
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { ...updateData, image: imageURL },
+      data: { ...updateData, image: imageURL || user.image },
     });
 
     revalidatePath('/', 'layout');

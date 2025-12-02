@@ -13,19 +13,28 @@ import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { useForm, Controller } from 'react-hook-form';
-import { baseReviewSchema, createReviewSchema } from '@/schema/productSchema';
+import { createAndUpdateReviewSchema } from '@/schema/productSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { Rating } from '../ui/star-rating';
 import { IoIosStar } from 'react-icons/io';
+import { Spinner } from '../ui/spinner';
+import { useState } from 'react';
+import { destructiveToast, successToast } from '@/lib/utils';
+import { ProductReview } from '@/types';
+import { createAndUpdateReview } from '@/lib/actions/review';
 
 const ProductReviewForm = ({
   userReview,
+  productId,
 }: {
-  userReview: z.infer<typeof baseReviewSchema> | undefined;
+  userReview: ProductReview | null;
+  productId: string;
 }) => {
-  const form = useForm<z.infer<typeof createReviewSchema>>({
-    resolver: zodResolver(createReviewSchema),
+  const [open, setOpen] = useState(false);
+
+  const form = useForm<z.infer<typeof createAndUpdateReviewSchema>>({
+    resolver: zodResolver(createAndUpdateReviewSchema),
     defaultValues: {
       title: userReview?.title || '',
       comment: userReview?.comment || '',
@@ -34,19 +43,27 @@ const ProductReviewForm = ({
     mode: 'onSubmit',
   });
 
-  const onSubmit = (data: z.infer<typeof createReviewSchema>) => {
-    console.log('Review Submitted:', data);
-  };
+  const onSubmit = async (
+    data: z.infer<typeof createAndUpdateReviewSchema>
+  ) => {
+    const res = await createAndUpdateReview(data, productId);
 
+    if (!res.success) {
+      destructiveToast(res.message);
+      return;
+    }
+    successToast(res.message);
+    setOpen(false);
+  };
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
             className='border-black/40 dark:border-white'
             variant='outline'
           >
-            Write a Review
+            {userReview ? 'Update Review' : 'Write a Review'}
           </Button>
         </DialogTrigger>
         <DialogContent className='sm:max-w-md'>
@@ -107,7 +124,7 @@ const ProductReviewForm = ({
                     <Rating
                       id={field.name}
                       size={30}
-                      precision={0.5}
+                      precision={1}
                       variant={'yellow'}
                       icon={<IoIosStar />}
                       aria-invalid={fieldState.invalid}
@@ -122,7 +139,18 @@ const ProductReviewForm = ({
               />
 
               <DialogFooter className='sm:justify-end'>
-                <Button type='submit'>Submit</Button>
+                <Button disabled={form.formState.isSubmitting} type='submit'>
+                  {form.formState.isSubmitting ? (
+                    <>
+                      <Spinner className='size-6' color='#fff' />{' '}
+                      {userReview ? 'Updating...' : 'Submitting...'}
+                    </>
+                  ) : userReview ? (
+                    'Update'
+                  ) : (
+                    'Submit'
+                  )}
+                </Button>
               </DialogFooter>
             </FieldGroup>
           </form>

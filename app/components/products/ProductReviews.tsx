@@ -1,7 +1,7 @@
-import { Alert, AlertTitle } from '../ui/alert';
 import Link from 'next/link';
+import Image from 'next/image';
 import { SERVER_URL } from '@/lib/constants';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Card, CardContent } from '../ui/card';
 import { Rating } from '../ui/star-rating';
 import ProductReviewForm from './ProductReviewForm';
@@ -11,106 +11,16 @@ import {
 } from '@/lib/actions/review';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
+import { formatDateTime } from '@/lib/utils';
+import { Badge } from '../ui/badge';
+import { Check, X } from 'lucide-react';
+import { Suspense } from 'react';
 
 type ProductReviewsProps = {
   productId: string;
   userId?: string;
   productSlug: string;
 };
-
-const testimonials = [
-  {
-    name: 'Eleanor Pena',
-    handle: '@BerryB777',
-    avatar:
-      'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-2.png?width=48&height=48&format=auto',
-    rating: 5,
-    title: 'Seamless Integration',
-    content:
-      'shadcn/studio has made my development process so much easier! The components are intuitive and blend perfectly with Tailwind CSS.',
-    platformName: 'G2',
-    platformImage:
-      'https://cdn.shadcnstudio.com/ss-assets/brand-logo/g2-logo.png?width=22&height=22&format=auto',
-  },
-  {
-    name: 'Darlene Robertson',
-    handle: '@LatentHQ',
-    avatar:
-      'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png?width=48&height=48&format=auto',
-    rating: 5,
-    title: 'Incredible Support',
-    content:
-      'The support team behind shadcn/studio is fantastic! They helped me with integration issues quickly and efficiently.',
-    platformName: 'Trustpilot',
-    platformImage:
-      'https://cdn.shadcnstudio.com/ss-assets/brand-logo/trustpilot-icon.png?width=22&height=22&format=auto',
-  },
-  {
-    name: 'Esther Howard',
-    handle: '@oxtuggs',
-    avatar:
-      'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-1.png?width=48&height=48&format=auto',
-    rating: 4.5,
-    title: 'Fantastic Component Library',
-    content:
-      'shadcn/studio is a fantastic tool for any developer using Shadcn UI. The components are not only beautiful but also functional!',
-    platformName: 'Twitter',
-    platformImage:
-      'https://cdn.shadcnstudio.com/ss-assets/brand-logo/twitter-icon.png?width=22&height=22&format=auto',
-  },
-  {
-    name: 'Floyd Miles',
-    handle: '@Athar',
-    avatar:
-      'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png?width=48&height=48&format=auto',
-    rating: 4.5,
-    title: 'Game Changer for Developers',
-    content:
-      'Using shadcn/studio has transformed the way I build applications. The ease of use and flexibility is unmatched!',
-    platformName: 'Twitter',
-    platformImage:
-      'https://cdn.shadcnstudio.com/ss-assets/brand-logo/twitter-icon.png?width=22&height=22&format=auto',
-  },
-  {
-    name: 'Brad Hanna',
-    handle: '@Marko',
-    avatar:
-      'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-2.png?width=48&height=48&format=auto',
-    rating: 4.5,
-    title: 'Perfect for Rapid Development',
-    content:
-      'shadcn/studio has significantly sped up my development process. The pre-built components are perfect for rapid prototyping!',
-    platformName: 'Twitter',
-    platformImage:
-      'https://cdn.shadcnstudio.com/ss-assets/brand-logo/twitter-icon.png?width=22&height=22&format=auto',
-  },
-  {
-    name: 'Cody Fisher',
-    handle: '@BerryB777',
-    avatar:
-      'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-2.png?width=48&height=48&format=auto',
-    rating: 5,
-    title: 'Effortless Design',
-    content:
-      'shadcn/studio has made designing my web applications effortless. The components are easy to customize and integrate seamlessly!',
-    platformName: 'G2',
-    platformImage:
-      'https://cdn.shadcnstudio.com/ss-assets/brand-logo/g2-logo.png?width=22&height=22&format=auto',
-  },
-  {
-    name: 'Theresa Webb',
-    handle: '@inverse_hq',
-    avatar:
-      'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-2.png?width=48&height=48&format=auto',
-    rating: 4.5,
-    title: 'Highly Recommended',
-    content:
-      "The attention to detail in shadcn/studio's components is impressive. It saves me so much time and effort in my projects!",
-    platformName: 'Trustpilot',
-    platformImage:
-      'https://cdn.shadcnstudio.com/ss-assets/brand-logo/trustpilot-icon.png?width=22&height=22&format=auto',
-  },
-];
 
 const ProductReviews = async ({
   productId,
@@ -124,7 +34,7 @@ const ProductReviews = async ({
   const userReview = await getUserReviewsByProductId(productId);
 
   return (
-    <div className='space-y-6 md:spaec-y-8 lg:space-y-8 py-10 pt-14'>
+    <div className='space-y-6 md:space-y-8 lg:space-y-8 pt-14 pb-6'>
       <div className='text-center flex flex-col justify-center items-center gap-6'>
         <h2 className='relative z-1 font-semibold text-3xl lg:text-4xl'>
           Customer Reviews
@@ -145,56 +55,72 @@ const ProductReviews = async ({
             to share your review
           </div>
         ) : (
-          <ProductReviewForm userReview={userReview} />
+          <ProductReviewForm userReview={userReview} productId={productId} />
         )}
         {reviews.length === 0 ? (
           <p className='text-base text-center font-bold '>No reviews yet.</p>
         ) : (
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 '>
-            {testimonials.map((testimonial, index) => (
-              <Card
-                key={index}
-                className='break-inside-avoid-column border-none duration-300 shadow-md'
-              >
+            {reviews.map((review, index) => (
+              <Card key={index} className='border duration-300 shadow-md'>
                 <CardContent className='space-y-6'>
-                  <div className='flex items-center justify-between gap-3'>
+                  <div className='flex flex-row justify-between items-center gap-3'>
                     <Rating
                       readOnly
                       variant='yellow'
                       size={24}
-                      value={testimonial.rating}
-                      precision={0.5}
+                      value={review.rating}
+                      precision={1}
                     />
 
                     <div className='flex grow justify-end gap-1.5'>
-                      {/* created at */}
+                      {review.user.emailVerified ? (
+                        <Badge
+                          variant='outline'
+                          className='rounded-sm border-green-600 text-green-600 dark:border-green-400 dark:text-green-400 [a&]:hover:bg-green-600/10 [a&]:hover:text-green-600/90 dark:[a&]:hover:bg-green-400/10 dark:[a&]:hover:text-green-400/90'
+                        >
+                          <Check className='size-3' />
+                          Verified
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant='outline'
+                          className='text-destructive [a&]:hover:bg-destructive/10 [a&]:hover:text-destructive/90 border-destructive rounded-sm'
+                        >
+                          <X className='size-3' />
+                          Not Verified
+                        </Badge>
+                      )}
                     </div>
                   </div>
-                  <div className='space-y-2'>
-                    <h3 className='text-lg font-semibold'>
-                      {testimonial.title}
-                    </h3>
-                    <p className='text-muted-foreground'>
-                      {testimonial.content}
+                  <div className='space-y-2 text-left'>
+                    <h3 className='text-lg font-semibold'>{review.title}</h3>
+                    <p className='text-muted-foreground text-sm'>
+                      {review.comment}
                     </p>
                   </div>
                   <div className='flex items-center gap-3'>
-                    <Avatar className='size-12'>
-                      <AvatarImage
-                        src={testimonial.avatar}
-                        alt={testimonial.name}
-                      />
-                      <AvatarFallback className='text-sm'>
-                        {testimonial.name
-                          .split(' ', 2)
-                          .map((n) => n[0])
-                          .join('')}
-                      </AvatarFallback>
+                    <Avatar>
+                      <Suspense
+                        fallback={
+                          <AvatarFallback className='bg-gray-200 text-base font-semibold'>
+                            {review.user.name.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        }
+                      >
+                        <Image
+                          src={review.user.image}
+                          alt='logo'
+                          width={50}
+                          height={50}
+                          className='object-cover'
+                        />
+                      </Suspense>
                     </Avatar>
-                    <div>
-                      <h4 className='font-medium'>{testimonial.name}</h4>
+                    <div className='text-left'>
+                      <h4 className='font-medium'>{review.user.name}</h4>
                       <p className='text-muted-foreground text-sm'>
-                        {/* verfied badge */}
+                        {formatDateTime(review.createdAt).dateOnly}
                       </p>
                     </div>
                   </div>
