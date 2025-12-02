@@ -1,6 +1,7 @@
 import z from 'zod';
 import {
   baseProductSchema,
+  baseReviewSchema,
   createProductSchema,
   updateProductSchema,
 } from '@/schema/productSchema';
@@ -41,3 +42,9 @@ export type UpdateUserPubInfo = z.infer<typeof updateUserPubInfoSchema> & {
 
 export type CreateProduct = z.infer<typeof createProductSchema>;
 export type UpdateProduct = z.infer<typeof updateProductSchema>;
+
+export type ProductReview = z.infer<typeof baseReviewSchema> & {
+  id: string;
+  createdAt: Date;
+  user: { name: string };
+};

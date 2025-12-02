@@ -41,3 +41,23 @@ export const createProductSchema = baseProductSchema.omit({
 export const updateProductSchema = createProductSchema.extend({
   id: z.string({ error: 'Invalid product ID' }),
 });
+
+// Product reviews
+export const baseReviewSchema = z.object({
+  productId: z
+    .string({ error: 'Invalid product' })
+    .min(1, 'Product is required'),
+  userId: z.string({ error: 'Invalid user' }).min(1, 'User is required'),
+  rating: z.coerce
+    .number<number>()
+    .min(1, 'Rating must be at least 1')
+    .max(5, 'Rating cannot be more than 5'),
+  title: z
+    .string({ error: 'Invalid title' })
+    .min(3, 'Title is required')
+    .max(100, 'Title is too long'),
+  comment: z
+    .string({ error: 'Invalid comment' })
+    .min(10, 'Comment is required')
+    .max(1000, 'Comment is too long'),
+});
