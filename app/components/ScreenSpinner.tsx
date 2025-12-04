@@ -8,10 +8,10 @@ const ScreenSpinner = ({ mutate }: { mutate: boolean }) => {
     <RemoveScroll>
       <div className='fixed inset-0 flex items-center justify-center backdrop-blur-xs z-50'>
         {mutate ? (
-          <PulseLoader color='#141ce6' size={30} margin={10} />
+          <PulseLoader color='#FFBF00' size={30} margin={10} />
         ) : (
           <ClipLoader
-            color='#0c65eb'
+            color='#FFBF00'
             cssOverride={{
               borderWidth: '4px',
             }}

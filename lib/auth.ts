@@ -4,13 +4,11 @@ import prisma from './prisma';
 import { nextCookies } from 'better-auth/next-js';
 import { emailOTP } from 'better-auth/plugins/email-otp';
 import { admin } from 'better-auth/plugins';
-import { Resend } from 'resend';
+import { resend } from '@/app/config/resend';
 import BayroEmailVerification from '@/emails/VerifyEmail';
 import BayroResetPassword from '@/emails/ResetPassword';
-import { APP_NAME } from '@/lib/constants';
+import { APP_NAME, RESEND_DOMAIN } from '@/lib/constants';
 import { createAuthMiddleware } from 'better-auth/api';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -48,7 +46,7 @@ export const auth = betterAuth({
     maxPasswordLength: 100,
     sendResetPassword: async ({ user, url }) => {
       await resend.emails.send({
-        from: `${APP_NAME} <noreply@ahmedrehandev.net>`,
+        from: `${APP_NAME} <noreply@${RESEND_DOMAIN}>`,
         replyTo: process.env.REPLY_TO_GMAIL,
         to: user.email,
         subject: 'Reset Password',
@@ -85,7 +83,7 @@ export const auth = betterAuth({
       async sendVerificationOTP({ email, otp, type }) {
         if (type === 'email-verification') {
           const { error } = await resend.emails.send({
-            from: `${APP_NAME} <noreply@ahmedrehandev.net>`,
+            from: `${APP_NAME} <noreply@${RESEND_DOMAIN}>`,
             replyTo: process.env.REPLY_TO_GMAIL,
             to: email,
             subject: 'Email Verification',

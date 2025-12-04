@@ -13,7 +13,6 @@ import {
 } from '@/schema/checkoutSchema';
 import { orderItemSchema, orderSchema } from '@/schema/orderSchema';
 import { updateUserPubInfoSchema } from '@/schema/userSchema';
-import { createAndUpdateReview } from '@/lib/actions/review';
 
 export type Product = z.infer<typeof baseProductSchema> & {
   id: string;

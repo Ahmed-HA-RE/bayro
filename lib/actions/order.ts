@@ -7,13 +7,15 @@ import { orderSchema } from '@/schema/orderSchema';
 import { headers } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { convertToPlainObject } from '@/lib/utils';
-import { Order, Shipping } from '@/types';
+import { Shipping } from '@/types';
 import { paypal } from '@/lib/paypal';
 import { revalidatePath } from 'next/cache';
 import { Prisma } from '@/lib/generated/prisma';
 import { stripe } from '../stripe';
 import Stripe from 'stripe';
 import { SERVER_URL } from '../constants';
+import { resend } from '@/app/config/resend';
+import PurchaseReceiptEmail from '@/emails/PurchaseReceipt';
 
 export const createOrder = async () => {
   try {
@@ -50,6 +52,7 @@ export const createOrder = async () => {
     const result = await prisma.$transaction(async (tx) => {
       const createdOrder = await tx.order.create({
         data: order.data,
+        include: { user: { select: { email: true } } },
       });
 
       await tx.orderItems.createMany({
@@ -151,7 +154,7 @@ export const confirmOrderPayment = async (
 
     // Do Transaction to update the order and product stock
     await prisma.$transaction(async (tx) => {
-      await tx.order.update({
+      const order = await tx.order.update({
         where: { id: orderId },
         data: {
           paymentResult: {
@@ -165,6 +168,7 @@ export const confirmOrderPayment = async (
           isPaid: true,
           paidAt: new Date(),
         },
+        include: { orderItems: true, user: { select: { email: true } } },
       });
 
       for (const item of order.orderItems) {
@@ -175,6 +179,14 @@ export const confirmOrderPayment = async (
           },
         });
       }
+
+      await resend.emails.send({
+        from: `Bayro <noreply@${process.env.RESEND_DOMAIN}>`,
+        replyTo: process.env.REPLY_TO_GMAIL,
+        to: order.user.email,
+        subject: 'Order Confirmation',
+        react: PurchaseReceiptEmail({ order }),
+      });
     });
 
     revalidatePath(`/order/${orderId}`, 'page');
@@ -183,7 +195,6 @@ export const confirmOrderPayment = async (
       message: 'Payment completed successfully. Thank you for your purchase!',
     };
   } catch (error) {
-    console.log(error);
     throw new Error((error as Error).message);
   }
 };
@@ -217,7 +228,7 @@ export const createCreditCardPayment = async (orderId: string) => {
       line_items: lineItems,
       mode: 'payment',
       customer_email: order.user.email,
-      success_url: `${SERVER_URL}/payment/success`,
+      success_url: `${SERVER_URL}/payment/success?orderId=${orderId}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SERVER_URL}/order/${orderId}`,
       branding_settings: {
         display_name: 'Bayro',
@@ -367,7 +378,6 @@ export const deleteOrderById = async (id: string) => {
     revalidatePath('/admin/orders', 'page');
     return { success: true, message: 'Order deleted successfully' };
   } catch (error) {
-    console.log(error);
     return { success: false, message: (error as Error).message };
   }
 };
@@ -383,16 +393,16 @@ export const updateOrderToPaidCOD = async (id: string) => {
       throw new Error('User is not authorized');
 
     await prisma.$transaction(async (tx) => {
-      const orderId = await tx.order.update({
+      const order = await tx.order.update({
         where: { id },
         data: {
           isPaid: true,
           paidAt: new Date(),
         },
-        include: { orderItems: true },
+        include: { orderItems: true, user: { select: { email: true } } },
       });
 
-      for (const item of orderId.orderItems) {
+      for (const item of order.orderItems) {
         await tx.product.update({
           where: { id: item.productId },
           data: {
@@ -400,8 +410,16 @@ export const updateOrderToPaidCOD = async (id: string) => {
           },
         });
       }
+      await resend.emails.send({
+        from: `Bayro <noreply@${process.env.RESEND_DOMAIN}>`,
+        replyTo: process.env.REPLY_TO_GMAIL,
+        to: order.user.email,
+        subject: 'Order Confirmation',
+        react: PurchaseReceiptEmail({ order }),
+      });
     });
     revalidatePath(`/order/${id}`, 'page');
+
     return {
       success: true,
       message: 'Order has been marked as paid successfully',

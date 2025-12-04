@@ -1,5 +1,11 @@
 import { Button } from '@/app/components/ui/button';
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Success Payment',
+  description: 'Your payment was successful. Thank you for your purchase!',
+};
 
 const SuccessPaymentpage = async ({
   searchParams,

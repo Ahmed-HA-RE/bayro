@@ -59,7 +59,7 @@ const CartTotalCard = ({ cart, session }: CartTotalCardProps) => {
       <CardFooter className='md:px-3'>
         <Button
           asChild
-          className='w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded'
+          className='w-full bg-amber-400 hover:bg-amber-500 text-white font-semibold py-2 px-4 rounded'
         >
           <Link
             href={
