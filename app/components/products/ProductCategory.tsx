@@ -13,7 +13,7 @@ const ProductCategory = async () => {
   const categories = await getCategories();
 
   return (
-    <section className='pt-10 md:pb-6'>
+    <section className='py-10'>
       <div className='space-y-6 md:space-y-10'>
         <div className='space-y-4 text-center'>
           <MotionPreset

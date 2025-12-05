@@ -4,7 +4,7 @@ import { featuresItems } from '@/lib/utils';
 
 const Features = () => {
   return (
-    <section className='py-6 pt-14 md:pt-10 md:pb-6'>
+    <section className='py-10 pb-6'>
       {/* Header */}
       <div className='mx-auto mb-8 md:mb-12 text-center'>
         <h2 className='text-2xl font-semibold md:text-3xl lg:text-4xl mb-3'>

@@ -3,6 +3,7 @@ import FeaturedCarousel from '../components/FeaturedCarousel';
 import ProductCategory from '../components/products/ProductCategory';
 import ProductList from '../components/products/ProductList';
 import Features from '../components/Features';
+import NewestArrival from '../components/NewestArrival';
 
 const HomePage = async () => {
   const featuredProducts = await getFeaturedProducts();
@@ -13,6 +14,7 @@ const HomePage = async () => {
       )}
       <ProductList />
       <ProductCategory />
+      <NewestArrival />
       <Features />
     </>
   );
