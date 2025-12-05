@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { APP_NAME } from '@/lib/constants';
+import { APP_NAME, SERVER_URL } from '@/lib/constants';
 import { ThemeProvider } from './components/ui/theme-provider';
 import { Toaster } from './components/ui/sonner';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     default: `${APP_NAME}`,
   },
   description: `Discover premium products at unbeatable prices on ${APP_NAME} a modern, secure, and seamless shopping experience in the UAE. Shop smart, shop ${APP_NAME}.`,
+  metadataBase: new URL(SERVER_URL!),
   openGraph: {
     siteName: APP_NAME,
     title: `${APP_NAME} - Premium Products at Unbeatable Prices`,
