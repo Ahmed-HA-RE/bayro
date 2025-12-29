@@ -1,4 +1,4 @@
-import ScreenSpinner from './components/ScreenSpinner';
+import ScreenSpinner from '../components/ScreenSpinner';
 
 const Loading = () => {
   return <ScreenSpinner mutate={false} />;
